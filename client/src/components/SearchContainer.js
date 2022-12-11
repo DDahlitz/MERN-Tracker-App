@@ -1,3 +1,4 @@
+import {useState, useMemo} from 'react'
 import { FormRow, FormRowSelect } from '.';
 import { useAppContext } from '../context/appContext';
 import Wrapper from '../assets/wrappers/SearchContainer';
@@ -15,6 +16,8 @@ const SearchContainer = () => {
         sortOptions,
     } = useAppContext();
 
+    const [delaySearch, setDelaySearch] = useState('')
+
     const handleSearch = (e) => {
         handleChange({ name: e.target.name, value: e.target.value });
     };
@@ -23,6 +26,19 @@ const SearchContainer = () => {
         e.preventDefault();
         clearFilters();
     };
+
+    const keyTimer = () => {
+        let timerID
+        return (e) => {
+            setDelaySearch(e.target.value)
+            clearTimeout(timerID);
+                timerID = setTimeout(() => {
+                    handleChange({ name: e.target.name, value: e.target.value });
+                }, 1000);
+                console.log(timerID);
+            }
+        }
+    const optimizedDelaySearch = useMemo(() => keyTimer(), [])
 
     return (
         <Wrapper>
@@ -33,8 +49,8 @@ const SearchContainer = () => {
                     <FormRow
                         type='text'
                         name='search'
-                        value={search}
-                        handleChange={handleSearch}
+                        value={delaySearch}
+                        handleChange={optimizedDelaySearch}
                     ></FormRow>
                     {/* search by status */}
                     <FormRowSelect
